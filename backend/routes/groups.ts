@@ -11,7 +11,7 @@ const groupRoutes = Router();
 //**
 // * @swagger
 // */
-groupRoutes.get("/:group_id/messsages/", controller.getAllMessages);
+groupRoutes.get("/:group_id/messages/", controller.getAllMessages);
 groupRoutes.get("/:group_id/users", controller.getAllUsers);
 groupRoutes.get("/:group_id/messages/:user_id", controller.getMessagesFromUser);
 groupRoutes.post("/:group_id/messages/:message_id", controller.addMessage);
