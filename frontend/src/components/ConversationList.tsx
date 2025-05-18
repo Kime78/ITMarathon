@@ -22,7 +22,7 @@ export default function ConversationList({ onGroupSelect }: Props) {
         const userId = user.id;
 
         const response = await fetch(
-          `http://localhost:3000/api/group/${userId}`
+          `http://localhost:3000/api/group/user/groups/${userId}`
         );
         if (!response.ok) throw new Error(`Eroare server: ${response.status}`);
 
