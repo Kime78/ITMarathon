@@ -85,7 +85,11 @@ export class SupabaseGroupRepository implements GroupRepository {
             .from("group_messages")
             .select("messages(*)")
             .eq("group_id", groupId)
-            .order("messages.createdAt")
+
+
+        console.log(error)
+        if (error)
+            throw new Error(`Failed to fetch: ${error}`)
 
         return data as unknown as Message[]
 
@@ -112,7 +116,7 @@ export class SupabaseGroupRepository implements GroupRepository {
             .select("messages(*)")
             .eq("group_id", groupId)
             .eq("messages.sender_id", userId)
-            .order("messages.createdAt")
+
 
         if (error || !data) {
             throw new Error(`Failed to fetch messages: ${error?.message}`);
