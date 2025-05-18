@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import type { UserSettings } from "@/types/userSettings";
+import { fi } from "date-fns/locale";
 
 function Profile() {
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
@@ -7,6 +8,9 @@ function Profile() {
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editedSettings, setEditedSettings] = useState<UserSettings | null>(
+    null
+  );
+  const [selectedProfileImage, setSelectedProfileImage] = useState<File | null>(
     null
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -66,18 +70,58 @@ function Profile() {
     setError(null);
 
     try {
+      let imageUrl = editedSettings.profilePicUrl;
+      if (selectedProfileImage) {
+        const formData = new FormData();
+        formData.append("image", selectedProfileImage);
+
+        const uploadResponse = await fetch("http://localhost:3000/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error(`Failed to upload image: ${uploadResponse.status}`);
+        }
+
+        const uploadData = await uploadResponse.json();
+        console.log(uploadData);
+        imageUrl = uploadData; // Asumând că răspunsul conține URL-ul direct
+        console.log(imageUrl);
+      }
+
+      // Include ID-ul utilizatorului în datele trimise pentru actualizare
+      const localUser = localStorage.getItem("user");
+      const userObj = localUser ? JSON.parse(localUser) : null;
+      const userId = userObj?.id;
+
+      const updatedSettingsToSend = {
+        ...editedSettings,
+        profilePicUrl: imageUrl,
+        id: userId, // Adaugă ID-ul utilizatorului
+      };
+      console.log("Date trimise pentru PUT:", updatedSettingsToSend);
+
       const response = await fetch("http://localhost:3000/api/userSettings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editedSettings),
+        body: JSON.stringify(updatedSettingsToSend),
       });
-      if (!response.ok)
-        throw new Error(`Failed to save settings: ${response.status}`);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          `Failed to save settings: ${response.status} - ${
+            errorData?.message || "Eroare la salvare"
+          }`
+        );
+      }
 
       const data = (await response.json()) as UserSettings;
       setUserSettings(data);
       setEditedSettings({ ...data });
       setIsEditing(false);
+      setSelectedProfileImage(null);
     } catch (err: any) {
       setError(err.message || "Eroare la salvare.");
     } finally {
@@ -108,6 +152,7 @@ function Profile() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && editedSettings) {
+      setSelectedProfileImage(file);
       // Pentru demo, doar numele fișierului; ideal: upload server + URL
       setEditedSettings({
         ...editedSettings,
