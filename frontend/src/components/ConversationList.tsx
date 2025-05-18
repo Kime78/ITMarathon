@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Users } from "lucide-react";
 
 interface Props {
-  onGroupSelect?: (group: Group) => void;
+  onGroupSelect?: (groupId: string | null) => void; // Modifică tipul prop-ului aici
 }
 
 export default function ConversationList({ onGroupSelect }: Props) {
@@ -60,20 +60,23 @@ export default function ConversationList({ onGroupSelect }: Props) {
         {groups.map((group) => (
           <button
             key={group.id}
-            onClick={() => onGroupSelect?.(group)}
+            onClick={() => onGroupSelect?.(group.id.toString())} // Trimite ID-ul ca string
             className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center space-x-3"
           >
             <img
-              src={group.groupPictureUrl}
+              src={group.group_picture_url}
               alt={group.name}
               className="w-10 h-10 rounded-full object-cover"
             />
             <div>
-              <p className="font-medium">{group.name}</p>
-              {group.messages?.length > 0 && (
+              <p className="font-medium"> {group.name}</p>
+              {group.messages?.length > 0 ? (
                 <p className="text-sm text-gray-500 truncate max-w-[200px]">
-                  {group.messages[group.messages.length - 1].text}
+                  {group.messages[group.messages.length - 1].imageUrl ||
+                    group.messages[group.messages.length - 1].senderId}
                 </p>
+              ) : (
+                <p className="text-sm text-gray-500">Încă nu sunt mesaje</p>
               )}
             </div>
           </button>
