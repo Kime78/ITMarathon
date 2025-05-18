@@ -7,6 +7,11 @@ interface ConversationPanelProps {
   selectedConversationId: string | null;
 }
 
+interface ApiResponse {
+  messages?: Message[];
+  name?: string;
+}
+
 function ConversationPanel({ selectedConversationId }: ConversationPanelProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentGroupName, setCurrentGroupName] = useState<string | null>(null);
@@ -20,7 +25,10 @@ function ConversationPanel({ selectedConversationId }: ConversationPanelProps) {
         setError(null);
         try {
           const response = await fetch(
-            `http://localhost:3000/api/group/${selectedConversationId}/messsages`
+            `http://localhost:3000/api/group/${selectedConversationId}/messages`,
+            {
+              method: "GET",
+            }
           );
           if (!response.ok) {
             const errorData = await response.json();
@@ -32,11 +40,13 @@ function ConversationPanel({ selectedConversationId }: ConversationPanelProps) {
             );
           }
 
-          const data: { messages?: Message[]; name?: string } =
-            await response.json();
+          const data = await response.json();
+          console.log("Data primită de la API:", data);
+          const data2 = data.map((d: any) => d.messages);
+          console.log(data2);
           if (data) {
-            // Add this check
-            setMessages(data.messages || []);
+            // Asigură-te că data.messages este un array înainte de a-l seta
+            setMessages(Array.isArray(data2) ? data2 : []);
             setCurrentGroupName(data.name || null);
           } else {
             console.warn(
@@ -63,6 +73,7 @@ function ConversationPanel({ selectedConversationId }: ConversationPanelProps) {
 
     fetchConversation();
   }, [selectedConversationId]);
+
   const handleSendImage = async (imageUrl: string) => {
     const newMessage: Message = {
       id: Date.now().toString(),

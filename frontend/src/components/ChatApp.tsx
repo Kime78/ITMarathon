@@ -1,4 +1,3 @@
-// În ChatApp.tsx
 import { useState } from "react";
 import ConversationList from "./ConversationList";
 import ConversationPanel from "./ConversationPanel";
@@ -9,22 +8,17 @@ export default function ChatApp() {
     string | null
   >(null);
 
-  console.log("ID conversație selectată în ChatApp:", selectedConversationId);
-
   return (
-    <div className="flex h-screen">
-      {/* Panoul din stânga (Lista de conversații) */}
-      <aside className="w-1/4 border-r border-gray-200 overflow-y-auto">
+    <div className="grid grid-cols-3 h-screen">
+      <aside className="overflow-y-auto border-r border-gray-200">
         <ConversationList onGroupSelect={setSelectedConversationId} />
       </aside>
 
-      {/* Panoul central (Conținutul conversației) */}
-      <main className="flex-1 overflow-hidden">
+      <main className="overflow-hidden border-x border-gray-200">
         <ConversationPanel selectedConversationId={selectedConversationId} />
       </main>
 
-      {/* Panoul din dreapta (Profil) */}
-      <aside className="w-1/4 border-l border-gray-200 overflow-y-auto">
+      <aside className="overflow-y-auto">
         <Profil />
       </aside>
     </div>
