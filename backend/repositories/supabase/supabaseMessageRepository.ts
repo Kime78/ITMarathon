@@ -29,8 +29,8 @@ export class SupabaseMessageRepository implements MessageRepository {
     return {
       id: data.id,
       senderId: data.sender_id,
-      imageUrl: data.image_url,
-      createdAt: data.created_at
+      imageUrl: data.imageUrl,
+      createdAt: data.createdAt
     };
   }
 

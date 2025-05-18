@@ -16,8 +16,11 @@ export class MessageController {
                     fs.mkdirSync("./uploads", { recursive: true });
                 }
 
-                if (err || !fields.senderId || !files.image || !fields.groupId)
+                if (err || !fields.senderId || !files.image || !fields.groupId) {
                     res.status(400).json({ error: `Invalid form data: ${err}` })
+                    return;
+                }
+
 
                 const image = Array.isArray(files.image) ? files.image[0] : files.image;
 
@@ -29,9 +32,11 @@ export class MessageController {
                         }
                     );
                     console.log(saved)
+                    // io.to(fields.groupId![0]).emit("message:new", saved);
                     res.status(201).json(saved);
-                    io.to(fields.groupId![0]).emit("message:new", saved);
+                    return;
                 } catch (error) {
+                    console.log(error)
                     res.status(500).json({ error: `cuc googs ${error} \n\n ${fields} \n\n ${files}` });
                 }
             })

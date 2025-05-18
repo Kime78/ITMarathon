@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { format, isToday, isYesterday } from "date-fns";
 import { ro } from "date-fns/locale";
 import type { Message } from "@/models/message";
@@ -17,6 +17,7 @@ function ConversationPanel({ selectedConversationId }: ConversationPanelProps) {
   const [currentGroupName, setCurrentGroupName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchConversation = async () => {
@@ -34,8 +35,7 @@ function ConversationPanel({ selectedConversationId }: ConversationPanelProps) {
             const errorData = await response.json();
             console.error(`Eroare server: ${response.status}`, errorData);
             throw new Error(
-              `Eroare server: ${response.status} - ${
-                errorData?.message || "Detalii eroare indisponibile"
+              `Eroare server: ${response.status} - ${errorData?.message || "Detalii eroare indisponibile"
               }`
             );
           }
@@ -74,39 +74,90 @@ function ConversationPanel({ selectedConversationId }: ConversationPanelProps) {
     fetchConversation();
   }, [selectedConversationId]);
 
-  const handleSendImage = async (imageUrl: string) => {
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      senderId: "me",
-      imageUrl,
-      createdAt: new Date().toISOString(),
-    };
-    setMessages((prev) => [...prev, newMessage]);
-
-    try {
-      const response = await fetch(
-        `http://localhost:3000/api/group/${selectedConversationId}/messages`, // Adjust the API endpoint
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newMessage),
-        }
-      );
-      if (!response.ok) {
-        throw new Error(`Eroare la trimiterea imaginii: ${response.status}`);
-      }
-      // Optionally, update the local state with the server's response
-      const serverMessage: Message = await response.json();
-      setMessages((prev) =>
-        prev.map((msg) => (msg.id === newMessage.id ? serverMessage : msg))
-      );
-    } catch (err: any) {
-      setError(err.message || "Eroare la trimiterea imaginii.");
-      // Optionally, revert the local state if the send fails
-      setMessages((prev) => prev.filter((msg) => msg.id !== newMessage.id));
+  const handleSendImage = async () => {
+    if (!fileInputRef.current?.files || fileInputRef.current.files.length === 0) {
+      setError("Vă rugăm să selectați o imagine.");
+      return;
     }
+
+    const file = fileInputRef.current.files[0];
+    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      setError("Fișierul este prea mare. Limita este de 5MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      if (!e.target) {
+        setError("Eroare la citirea fișierului.");
+        return;
+      }
+      const imageUrl = e.target.result as string;
+
+      const newMessage: Message = {
+        id: Date.now().toString(),
+        senderId: "me",
+        imageUrl,
+        createdAt: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, newMessage]);
+
+      try {
+        const x = localStorage.getItem("user")!;
+        const y = JSON.parse(x);
+        const a: string = y.id;
+
+        // Send the image data to your /api/messages endpoint
+        const formData = new FormData();
+        formData.append('image', file); // 'image' is the field name your API expects
+        formData.append('senderId', a);
+        formData.append('groupId', `${selectedConversationId}`)
+
+        const resp = await fetch(`http://localhost:3000/api/messages`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!resp.ok) {
+          const errorData = await resp.json();
+          throw new Error(`Failed to send image: ${resp.status} - ${errorData.message || 'No details available'}`);
+        }
+
+        const serverMessage = await resp.json();
+
+        const r2 = await fetch(`http://localhost:3000/api/group/${selectedConversationId}/messages/${serverMessage.id}`, {
+          method: "POST"
+        })
+
+
+        // const response = await fetch(
+        //   `http://localhost:3000/api/group/${selectedConversationId}/messages`, // Adjust the API endpoint
+        //   {
+        //     method: "POST",
+        //     headers: {
+        //       "Content-Type": "application/json",
+        //     },
+        //     body: JSON.stringify(newMessage),
+        //   }
+        // );
+        // if (!response.ok) {
+        //   throw new Error(`Eroare la trimiterea imaginii: ${response.status}`);
+        // }
+        // // Optionally, update the local state with the server's response
+        // const serverMessage: Message = await response.json();
+        setMessages((prev) =>
+          prev.map((msg) => (msg.id === newMessage.id ? serverMessage : msg))
+        );
+      } catch (err: any) {
+        setError(err.message || "Eroare la trimiterea imaginii.");
+        // Optionally, revert the local state if the send fails
+        setMessages((prev) => prev.filter((msg) => msg.id !== newMessage.id));
+      }
+    };
+    reader.onerror = () => {
+      setError("Eroare la citirea fișierului.");
+    };
+    reader.readAsDataURL(file);
   };
 
   const formatDate = (dateStr: string): string => {
@@ -154,11 +205,10 @@ function ConversationPanel({ selectedConversationId }: ConversationPanelProps) {
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`mb-2 p-2 rounded-md ${
-                message.senderId === "me"
-                  ? "bg-blue-100 self-end"
-                  : "bg-gray-100 self-start"
-              }`}
+              className={`mb-2 p-2 rounded-md ${message.senderId === "me"
+                ? "bg-blue-100 self-end"
+                : "bg-gray-100 self-start"
+                }`}
             >
               {message.imageUrl ? (
                 <img
@@ -177,15 +227,23 @@ function ConversationPanel({ selectedConversationId }: ConversationPanelProps) {
         </div>
       )}
 
-      {/* Trimitere imagine hardcodată pentru demo */}
-      <div className="mt-4">
+      {/* Trimitere imagine cu selectare fișier */}
+      <div className="mt-4 flex items-center gap-2">
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleSendImage} // Trigger upload on change
+          style={{ display: "none" }}
+          ref={fileInputRef}
+          id="fileInput"
+        />
+        <label htmlFor="fileInput" className="bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer">
+          Alege imagine
+        </label>
         <button
-          className="bg-blue-500 text-white px-4 py-2 rounded-md"
-          onClick={() =>
-            handleSendImage(
-              "https://www.ionos.ro/digitalguide/fileadmin/DigitalGuide/hi/Imagine3.jpg"
-            )
-          }
+          className="bg-green-500 text-white px-4 py-2 rounded-md"
+          onClick={handleSendImage}
+        // disabled={!selectedFile}
         >
           Trimite imagine
         </button>
@@ -195,3 +253,4 @@ function ConversationPanel({ selectedConversationId }: ConversationPanelProps) {
 }
 
 export default ConversationPanel;
+
