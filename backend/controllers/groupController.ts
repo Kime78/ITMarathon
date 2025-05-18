@@ -110,7 +110,11 @@ export class GroupController {
             const userId = req.params.user_id;
             const groups = await this.service.getGroupsByUserId(userId);
 
-            res.status(200).json(groups)
+
+            const groups2 = groups.map((g: any) => g.group)
+            console.log(groups2)
+
+            res.status(200).json(groups2)
         } catch (err) {
             res.status(500).json({ error: err })
         }
