@@ -10,7 +10,7 @@ import userSettingsRoutes from "./routes/userSettings";
 import groupRoutes from "./routes/groups";
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from "./swaggerOptions";
-
+import photoRoutes from "./routes/file"
 const app = express();
 const server = http.createServer(app);
 
@@ -27,6 +27,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/userSettings", userSettingsRoutes);
 app.use("/api/group", groupRoutes)
+app.use("/api/upload", photoRoutes)
 
 // Global error handler (should be after routes)
 app.use(errorHandler);
