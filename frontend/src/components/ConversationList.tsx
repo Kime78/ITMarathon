@@ -1,66 +1,102 @@
-import { useState } from "react";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useState, useEffect } from "react";
+import type { Group } from "@/models/group";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, Users, Settings } from "lucide-react";
+import { Plus, Users } from "lucide-react";
 
-interface Conversatie {
-  id: number;
-  nume: string;
-  imagineProfil: string | null;
-  ultimulMesaj: string; // Schimbat din ultimaImagine în ultimulMesaj
-  esteGrup: boolean;
-  numarMembri?: number;
+interface Props {
+  onGroupSelect?: (group: Group) => void;
 }
 
-const conversatiiMock: Conversatie[] = [
+const mockGroups: Group[] = [
   {
-    id: 1,
-    nume: "Ion Popescu",
-    imagineProfil: "/images/user1.jpg",
-    ultimulMesaj: "Salut! Ce mai faci?",
-    esteGrup: false,
+    id: "group1",
+    userIds: ["user1", "user2", "user3"],
+    name: "Echipa Proiect",
+    groupPictureUrl:
+      "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=200&q=80",
+    messages: [
+      {
+        id: "msg1",
+        senderId: "user1",
+        imageUrl: "",
+        createdAt: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
+      },
+      {
+        id: "msg2",
+        senderId: "user2",
+        imageUrl:
+          "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=200&q=80",
+        createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+      },
+    ],
   },
   {
-    id: 2,
-    nume: "Grup Familie",
-    imagineProfil: null,
-    ultimulMesaj: "Nu uitați de întâlnirea de duminică!",
-    esteGrup: true,
-    numarMembri: 5,
+    id: "group2",
+    userIds: ["user1", "user4"],
+    name: "Familia",
+    groupPictureUrl:
+      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80",
+    messages: [
+      {
+        id: "msg3",
+        senderId: "user4",
+        imageUrl: "",
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+      },
+      {
+        id: "msg4",
+        senderId: "user1",
+        imageUrl: "",
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 23).toISOString(),
+      },
+    ],
   },
   {
-    id: 3,
-    nume: "Ana Maria",
-    imagineProfil: "/images/user2.jpg",
-    ultimulMesaj: "Am văzut poza, super!",
-    esteGrup: false,
-  },
-  {
-    id: 4,
-    nume: "Echipa Proiect",
-    imagineProfil: null,
-    ultimulMesaj: "Termenul limită se apropie!",
-    esteGrup: true,
-    numarMembri: 10,
-  },
-  {
-    id: 5,
-    nume: "Bogdan Ionescu",
-    imagineProfil: "/images/user3.jpg",
-    ultimulMesaj: "Te sun mai târziu.",
-    esteGrup: false,
+    id: "group3",
+    userIds: ["user1", "user5", "user6"],
+    name: "Prietenii",
+    groupPictureUrl:
+      "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=200&q=80",
+    messages: [
+      {
+        id: "msg5",
+        senderId: "user6",
+        imageUrl:
+          "https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?auto=format&fit=crop&w=200&q=80",
+        createdAt: new Date(Date.now() - 1000 * 60 * 10).toISOString(),
+      },
+      {
+        id: "msg6",
+        senderId: "user1",
+        imageUrl: "",
+        createdAt: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+      },
+    ],
   },
 ];
 
-function ConversationList() {
-  const [conversations, setConversations] =
-    useState<Conversatie[]>(conversatiiMock); // Folosim mock data
+export default function ConversationList({ onGroupSelect }: Props) {
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Nu mai avem nevoie de useEffect și fetch, folosim datele mock direct
+  useEffect(() => {
+    setTimeout(() => {
+      try {
+        setGroups(mockGroups);
+        setError(null);
+      } catch (e) {
+        setError("Eroare la încărcarea grupurilor.");
+      } finally {
+        setLoading(false);
+      }
+    }, 500);
+  }, []);
 
   return (
     <div className="w-full h-full">
+      {/* Bara de căutare și acțiuni */}
       <div className="px-4 py-2 flex items-center space-x-4 border-b">
         <Input placeholder="Caută conversații..." className="flex-1" />
         <Button variant="ghost" size="icon">
@@ -69,45 +105,38 @@ function ConversationList() {
         <Button variant="ghost" size="icon">
           <Users className="h-5 w-5" />
         </Button>
-        <Button variant="ghost" size="icon">
-          <Settings className="h-5 w-5" />
-        </Button>
       </div>
-      <ul className="divide-y divide-gray-200">
-        {conversations.map((conversation) => (
-          <li
-            key={conversation.id}
-            onClick={() => {
-              /* Logica selectare conversație */
-              console.log(`Conversație selectată: ${conversation.nume}`);
-            }}
-            className="flex items-center space-x-4 px-4 py-3 hover:bg-gray-50 cursor-pointer"
+
+      {/* Feedback stare încărcare */}
+      {loading && <p className="p-4 text-gray-500">Se încarcă...</p>}
+      {error && <p className="p-4 text-red-500">{error}</p>}
+
+      {/* Lista de grupuri */}
+      <div className="overflow-y-auto max-h-[calc(100vh-80px)]">
+        {groups.map((group) => (
+          <button
+            key={group.id}
+            onClick={() => onGroupSelect?.(group)}
+            className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center space-x-3"
           >
-            <Avatar>
-              {conversation.imagineProfil ? (
-                <AvatarImage
-                  src={conversation.imagineProfil}
-                  alt={conversation.nume}
-                />
-              ) : (
-                <AvatarFallback>{conversation.nume.charAt(0)}</AvatarFallback>
-              )}
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-gray-900">
-                  {conversation.nume}
+            <img
+              src={group.groupPictureUrl}
+              alt={group.name}
+              className="w-10 h-10 rounded-full object-cover"
+            />
+            <div>
+              <p className="font-medium">{group.name}</p>
+              {group.messages?.length > 0 && (
+                <p className="text-sm text-gray-500 truncate max-w-[200px]">
+                  {group.messages[group.messages.length - 1].imageUrl
+                    ? "[Imagine]"
+                    : "Mesaj nou"}
                 </p>
-              </div>
-              <p className="text-sm text-gray-500 truncate">
-                {conversation.ultimulMesaj}
-              </p>
+              )}
             </div>
-          </li>
+          </button>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
-
-export default ConversationList;
