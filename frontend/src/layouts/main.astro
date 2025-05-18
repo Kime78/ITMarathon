@@ -1,16 +1,22 @@
 ---
-import '../styles/global.css';
-const { content } = Astro.props;
+import Navbar from "@/components/Navbar";
+import "../styles/global.css";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<title>{content.title}</title>
-	</head>
-	<body>
-		<slot />
-	</body>
+<html lang="ro">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>StegoApp</title>
+  </head>
+  <body class="bg-gray-100 flex flex-col justify-center">
+    <!-- Navbar -->
+    <Navbar />
+
+    <!-- Pagina în sine -->
+    <main class="min-h-screen flex items-center px-4">
+      <slot />
+    </main>
+  </body>
 </html>
