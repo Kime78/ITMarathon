@@ -7,10 +7,11 @@ import { GroupRepository } from "../groupRepository";
 export class SupabaseGroupRepository implements GroupRepository {
     async getUserGroups(userId: string): Promise<Group[]> {
         const { data, error } = await supabase
-            .from("user_groups")
-            .select("groups(*)")
+            .from("group_users")
+            .select("group(*)")
             .eq("user_id", userId)
 
+        console.log(error)
         if (error)
             throw new Error(`Failed to fetch: ${error}`)
 
@@ -20,7 +21,7 @@ export class SupabaseGroupRepository implements GroupRepository {
 
     async getGroupDetails(groupId: string): Promise<Group> {
         const { data, error } = await supabase
-            .from("groups")
+            .from("group")
             .select()
             .eq("id", groupId)
             .single()
@@ -95,6 +96,11 @@ export class SupabaseGroupRepository implements GroupRepository {
             .from("group_users")
             .select("users(*)")
             .eq("group_id", groupId)
+
+
+        if (error)
+            throw new Error(`Failed to fetch: ${error}`)
+
 
         return data as unknown as User[]
     }
