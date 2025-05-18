@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { UserController } from "../controllers/userController";
-import { SupabaseUserRepository } from "../repositories/supabase/SupabaseUserRepository";
 import { UserService } from "../services/userService";
+import { SupabaseUserRepository } from "../repositories/supabase/supabaseUserRepository";
 
 const repo = new SupabaseUserRepository();
 const service = new UserService(repo);

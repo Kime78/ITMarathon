@@ -8,4 +8,4 @@ export interface UserSettings {
     profileColor: string,
     fontSize: number,
     font: string
-}
+}   
