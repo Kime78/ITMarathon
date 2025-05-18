@@ -1,20 +1,27 @@
 ---
 import Main from "@/layouts/main.astro";
-import ListaConversatii from "@/components/ListaConversatii";
+import ConversationList from "@/components/ConversationList";
+import ConversationPanel from "@/components/ConversationPanel";
+import Header from "@/components/Header";
+import ProfilSidebar from "@/components/profil/Profil"; // Creăm o componentă separată pentru profil
 ---
 
 <Main title="StegoApp">
   <div class="flex h-screen">
     {/* Panoul din stânga (Lista de conversații) */}
-    <aside class="border-r border-gray-200 overflow-x-auto flex-shrink-0">
-      <ListaConversatii client:load />
+    <aside class="w-1/4 border-r border-gray-200 overflow-y-auto">
+      <Header client:load />
+      <ConversationList client:load />
     </aside>
 
-    {/* Panoul din dreapta (Conținutul conversației - inițial gol) */}
-    <main class="flex-1 overflow-hidden flex items-center justify-center">
-      <p class="text-gray-500">
-        Selectează o conversație pentru a o vizualiza.
-      </p>
+    {/* Panoul central (Conținutul conversației) */}
+    <main class="flex-1 overflow-hidden">
+      <ConversationPanel client:load />
     </main>
+
+    {/* Panoul din dreapta (Profil) */}
+    <aside class="w-1/4 border-l border-gray-200 overflow-y-auto">
+      <ProfilSidebar client:load />
+    </aside>
   </div>
 </Main>
