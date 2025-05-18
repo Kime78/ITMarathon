@@ -94,4 +94,25 @@ export class GroupController {
         }
     }
 
+    getGroupById = async (req: Request, res: Response) => {
+        try {
+            const groupId = req.params.group_id;
+            const group = await this.service.getGroupById(groupId);
+
+            res.status(200).json(group)
+        } catch (err) {
+            res.status(500).json({ error: err })
+        }
+    }
+
+    getGroupsByUserID = async (req: Request, res: Response) => {
+        try {
+            const userId = req.params.user_id;
+            const groups = await this.service.getGroupsByUserId(userId);
+
+            res.status(200).json(groups)
+        } catch (err) {
+            res.status(500).json({ error: err })
+        }
+    }
 }

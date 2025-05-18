@@ -10,4 +10,6 @@ export interface GroupRepository {
     getAllMessages(groupId: string): Promise<Message[]>
     getMessagesFromUser(groupId: string, userId: string): Promise<Message[]>
     getAllUsers(groupId: string): Promise<User[]>
+    getUserGroups(userId: string): Promise<Group[]>
+    getGroupDetails(groupId: string): Promise<Group>
 }

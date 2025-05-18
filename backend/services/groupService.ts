@@ -33,4 +33,12 @@ export class GroupService {
     getAllUsers(groupId: string): Promise<User[]> {
         return this.repo.getAllUsers(groupId);
     }
+
+    getGroupById(groupId: string): Promise<Group> {
+        return this.repo.getGroupDetails(groupId);
+    }
+
+    getGroupsByUserId(userId: string): Promise<Group[]> {
+        return this.repo.getUserGroups(userId);
+    }
 }
