@@ -53,18 +53,24 @@ export default function LoginForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const simulateLogin = async () => {
-    // Simulăm o întârziere de rețea
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+  const sendLoginRequest = async () => {
+    const response = await fetch("http://localhost:3000/api/users/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: formData.email,
+        password: formData.password,
+      }),
+    });
 
-    // Simulăm un răspuns de la server
-    if (
-      formData.email === "test@example.com" &&
-      formData.password === "password123"
-    ) {
-      return { success: true };
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Autentificare eșuată");
     }
-    return { success: false, message: "Email sau parolă incorectă" };
+
+    return await response.json();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -78,23 +84,19 @@ export default function LoginForm() {
     try {
       console.log("Trimitem datele la server:", {
         email: formData.email,
-        password: "******", // Nu logam parola reală
+        password: formData.password,
         rememberMe: formData.rememberMe,
       });
 
-      const response = await simulateLogin();
+      const response = await sendLoginRequest();
       console.log("Răspuns de la server:", response);
 
-      if (!response.success) {
-        setSubmitError(response.message || "Autentificare eșuată");
-        return;
-      }
+      localStorage.setItem("user", JSON.stringify(response));
 
-      // Aici ai redirecționa utilizatorul sau gestiona succesul autentificării
-      alert("Autentificare reușită! (simulată)");
-    } catch (error) {
+      window.location.href = "/";
+    } catch (error: any) {
       console.error("Eroare la autentificare:", error);
-      setSubmitError("A apărut o eroare. Te rugăm să încerci din nou.");
+      setSubmitError(error.message || "A apărut o eroare.");
     } finally {
       setIsSubmitting(false);
     }

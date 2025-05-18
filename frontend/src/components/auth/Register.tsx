@@ -85,19 +85,38 @@ export default function RegisterForm() {
   };
 
   const simulateApiCall = async (data: typeof formData) => {
-    // Simulăm o întârziere de rețea
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // Simulăm un răspuns de la server
-    return {
-      success: true,
-      message: "Înregistrare reușită!",
-      data: {
-        id: Math.floor(Math.random() * 1000),
-        ...data,
-        password: undefined, // Nu returnam parola în response
+    const payload = {
+      email: data.email,
+      password: data.password,
+      settings: {
+        profilePicUrl: "https://example.com/avatar.png",
+        profileColor: "#3498db",
+        fontSize: 14,
+        font: "Arial",
+        role: "user",
       },
     };
+
+    try {
+      const response = await fetch("http://localhost:3000/api/users/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log("Răspuns de la server:", result);
+      return result;
+    } catch (error) {
+      console.error("Eroare la apelul API:", error);
+      setErrors({ submit: "A apărut o eroare la înregistrare." });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
