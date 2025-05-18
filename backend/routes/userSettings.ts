@@ -9,7 +9,7 @@ const controller = new UserSettingsController(service);
 
 const userSettingsRoutes = Router();
 
-userSettingsRoutes.get("/", controller.get);
+userSettingsRoutes.get("/:user_id", controller.get);
 userSettingsRoutes.put("/", controller.edit);
 
 export default userSettingsRoutes;

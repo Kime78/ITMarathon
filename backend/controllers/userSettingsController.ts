@@ -31,7 +31,7 @@ export class UserSettingsController {
 
     get = async (req: Request, res: Response) => {
         try {
-            const { userId } = req.body;
+            const userId = req.params.user_id;
             const user = await this.service.get(userId);
             res.status(200).json(user)
         }
