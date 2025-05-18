@@ -1,25 +1,20 @@
 ---
-import '../styles/global.css';
-// Component Imports
-import Button from '../components/Button.astro';
-
-// Full Astro Component Syntax:
-// https://docs.astro.build/basics/astro-components/
+import Main from "@/layouts/main.astro";
+import ListaConversatii from "@/components/ListaConversatii";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro + TailwindCSS</title>
-	</head>
+<Main title="StegoApp">
+  <div class="flex h-screen">
+    {/* Panoul din stânga (Lista de conversații) */}
+    <aside class="border-r border-gray-200 overflow-x-auto flex-shrink-0">
+      <ListaConversatii client:load />
+    </aside>
 
-	<body>
-		<div class="grid place-items-center h-screen content-center">
-			<Button>Tailwind Button in Astro!</Button>
-			<a href="/markdown-page" class="p-4 underline">Markdown is also supported...</a>
-		</div>
-	</body>
-</html>
+    {/* Panoul din dreapta (Conținutul conversației - inițial gol) */}
+    <main class="flex-1 overflow-hidden flex items-center justify-center">
+      <p class="text-gray-500">
+        Selectează o conversație pentru a o vizualiza.
+      </p>
+    </main>
+  </div>
+</Main>
