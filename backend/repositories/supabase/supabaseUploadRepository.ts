@@ -1,0 +1,20 @@
+import { randomUUID } from "crypto";
+import { createReadStream } from "fs";
+import path from "path";
+import { supabase } from "../../config/config";
+import { UploadRepository } from "../uploadRepository";
+
+export class SupabaseUploadRepository implements UploadRepository {
+    async upload(filePath: string, bucket: string): Promise<string> {
+        const filename = `${randomUUID()}${path.extname(filePath)}`;
+        const { error } = await supabase.storage
+            .from(bucket)
+            .upload(filename, createReadStream(filePath));
+
+        if (error) throw error;
+
+        return supabase.storage.from(bucket).getPublicUrl(filename).data.publicUrl;
+    }
+
+}
+
