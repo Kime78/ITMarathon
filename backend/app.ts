@@ -8,6 +8,8 @@ import { Server } from "socket.io";
 import http from "http";
 import userSettingsRoutes from "./routes/userSettings";
 import groupRoutes from "./routes/groups";
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from "./swaggerOptions";
 
 const app = express();
 const server = http.createServer(app);
@@ -19,7 +21,7 @@ export const io = new Server(server, {
 app.use(cors());
 
 app.use(express.json());
-
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Routes
 app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes);

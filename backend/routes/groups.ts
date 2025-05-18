@@ -8,7 +8,9 @@ const service = new GroupService(repo);
 const controller = new GroupController(service);
 
 const groupRoutes = Router();
-
+//**
+// * @swagger
+// */
 groupRoutes.get("/messsages", controller.getAllMessages);
 groupRoutes.get("/users", controller.getAllUsers);
 groupRoutes.get("/messages/:user_id", controller.getMessagesFromUser);
