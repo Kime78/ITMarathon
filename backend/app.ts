@@ -6,12 +6,13 @@ import cors from "cors";
 import messageRoutes from "./routes/messages";
 import { Server } from "socket.io";
 import http from "http";
+import userSettingsRoutes from "./routes/userSettings";
 
 const app = express();
 const server = http.createServer(app);
 
 export const io = new Server(server, {
-  cors: { origin: "*" },
+    cors: { origin: "*" },
 });
 
 app.use(cors());
@@ -21,6 +22,7 @@ app.use(express.json());
 // Routes
 app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/userSettings", userSettingsRoutes);
 
 // Global error handler (should be after routes)
 app.use(errorHandler);
