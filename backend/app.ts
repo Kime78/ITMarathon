@@ -7,6 +7,7 @@ import messageRoutes from "./routes/messages";
 import { Server } from "socket.io";
 import http from "http";
 import userSettingsRoutes from "./routes/userSettings";
+import groupRoutes from "./routes/groups";
 
 const app = express();
 const server = http.createServer(app);
@@ -23,6 +24,7 @@ app.use(express.json());
 app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/userSettings", userSettingsRoutes);
+app.use("/api/group", groupRoutes)
 
 // Global error handler (should be after routes)
 app.use(errorHandler);
