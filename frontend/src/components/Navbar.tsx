@@ -7,17 +7,7 @@ type Role = "admin" | "user" | "guest";
 const routes = {
   home: {
     path: "/",
-    label: "Acasă",
-    roles: ["user", "admin"],
-  },
-  conversations: {
-    path: "/conversatii",
-    label: "Conversații",
-    roles: ["user", "admin"],
-  },
-  profile: {
-    path: "/profil",
-    label: "Profil",
+    label: "Conversatii",
     roles: ["user", "admin"],
   },
   admin: {
@@ -75,9 +65,12 @@ export default function Navbar() {
             ))}
           {user ? (
             <>
-              <span className="text-sm text-gray-500">
-                Salut, {user.user_metadata?.name || user.email}
-              </span>
+              <a href="/profil">
+                <span className="text-sm text-gray-500">
+                  {user.user_metadata?.name || user.email}
+                </span>
+              </a>
+
               <Button variant="ghost" onClick={handleLogout}>
                 Logout
               </Button>

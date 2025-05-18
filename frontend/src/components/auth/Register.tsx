@@ -128,17 +128,9 @@ export default function RegisterForm() {
     setIsSubmitting(true);
 
     try {
-      console.log("Trimitem datele la server:", {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-        agreeTerms: formData.agreeTerms,
-      });
-
       const response = await simulateApiCall(formData);
-      console.log("Răspuns de la server:", response);
 
-      setSubmitSuccess(true);
+      // setSubmitSuccess(true);
       // Aici ai putea redirecționa utilizatorul sau face altceva cu răspunsul
     } catch (error) {
       console.error("Eroare la înregistrare:", error);
